@@ -24,3 +24,12 @@ Edit `config.yaml` with the following settings:
 - `root_path`: Local path to your pre-roll video files on the system
 - `plex_path`: Mapped path in Plex to the pre-roll video files
 - `patterns`: Directory names to match for specific pre-roll seasons or events
+
+## Docker Usage
+
+To create and run the Docker container, use the provided `docker-compose.yml` file.
+Before starting, ensure you have a valid `config.yaml` in the same directory.
+
+```bash
+docker-compose up -d
+```

@@ -1,6 +1,7 @@
 import yaml
 import os
 import requests
+import time
 from datetime import datetime
 from urllib.parse import quote
 
@@ -53,7 +54,8 @@ def update_plex_preroll(server_url, token, preroll_string):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def main():
+def update_prerolls():
+    """Main function to update pre-rolls."""
     config = load_config()
     today = datetime.now().date()
     current_year = today.year
@@ -62,7 +64,8 @@ def main():
     plex_url = config['plex']['url']
     plex_token = config['plex']['token']
     root_path = config['paths']['root_path']
-    plex_path = config['paths']['plex_path']
+    # Allow plex_path to be overridden by environment variable
+    plex_path = os.getenv('PLEX_PATH', config['paths']['plex_path'])
     
     matched_patterns = None
     event_name = "Default"
@@ -86,15 +89,34 @@ def main():
     plex_files = get_plex_mapped_files(root_path, plex_path, matched_patterns)
     
     if not plex_files:
-        print(f"[{event_name}] No files found. Skipping update.")
+        print(f"[{datetime.now()}] [{event_name}] No files found. Skipping update.")
         return
 
     # 3. Join with Semicolon
     preroll_string = ";".join(plex_files)
-    print(f"[{event_name}] Setting Pre-rolls to: {preroll_string}")
+    print(f"[{datetime.now()}] [{event_name}] Setting Pre-rolls to: {preroll_string}")
 
     # 4. API Request
     update_plex_preroll(plex_url, plex_token, preroll_string)
+
+def main():
+    """Main loop - runs the update at specified intervals."""
+    # Get update frequency from environment variable (times per day)
+    updates_per_day = int(os.getenv('UPDATES_PER_DAY', '4'))
+    interval_seconds = (24 * 3600) // updates_per_day
+    
+    print(f"PreRollarr started. Will update {updates_per_day} times per day (every {interval_seconds} seconds)")
+    print(f"First update at: {datetime.now()}")
+    
+    # Run indefinitely
+    while True:
+        try:
+            update_prerolls()
+        except Exception as e:
+            print(f"[{datetime.now()}] Error during update: {e}")
+        
+        # Wait for the next update
+        time.sleep(interval_seconds)
 
 if __name__ == "__main__":
     main()
