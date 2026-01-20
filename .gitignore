@@ -1,0 +1,27 @@
+# Data directory (user config - not tracked)
+data/
+config/
+appdata/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+venv/
+env/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
+.env.local

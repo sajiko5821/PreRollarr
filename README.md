@@ -1,37 +1,122 @@
 # PreRollarr
 
-Automates the management of pre-roll videos in Plex.
+Automates the management of pre-roll videos in Plex. The application monitors seasonal events and updates your Plex pre-roll settings accordingly.
 
-## Requirements
+## Features
 
-- Python 3.x
-- PyYAML
-- requests
+- 🎬 Automatic pre-roll management for Plex
+- 📅 Event-based pre-roll rotation (holidays, seasons, etc.)
+- 🐳 Docker support with docker-compose
+- ⏱️ Configurable update frequency
+- 📂 Select multiple pre-rolls per event from defined a folder
 
-## Installation & Start
+## Quick Start with Docker
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Plex Server running
+- Your Plex authentication token
+
+### 1. Get your Plex Token
+
+[How to find your X-Plex-Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
+
+### 2. Edit `docker-compose.yml`
+
+Update the environment variables with your Plex details:
+
+```yaml
+environment:
+  - PLEX_URL=http://YOUR_PLEX_IP:YOUR_PORT         # e.g., http://192.168.1.100:32400
+  - PLEX_TOKEN=YOUR_PLEX_TOKEN                     # Your X-Plex-Token
+  - PLEX_PATH=/path/in/plex                        # Where Plex sees the pre-rolls
+  - UPDATES_PER_DAY=4                              # How often to update (1, 2, 4, 6, 8, 12, 24)
+```
+
+### 3. Update volume mounts
+
+Edit the pre-roll path in `docker-compose.yml`:
+
+```yaml
+volumes:
+  - ./appdata/config.yaml:/app/config.yaml:ro     # Path to your config.yaml (Persistant) - You may copy the config.yaml.example 
+  - /your/local/preroll/path:/local-preroll:ro    # Path to your pre-roll videos
+```
+
+### 4. Start the container and check logs
 
 ```bash
-pip3 install -r requirements.txt
-python3 main.py
+docker-compose up -d
+
+docker-compose logs -f prerollarr
 ```
 
 ## Configuration
 
-Edit `config.yaml` with the following settings:
+### config.yaml
 
-- `plex_server_url`: Your Plex server URL (e.g., `http://localhost:32400`)
-- `plex_token`: Your X-Plex-Token -> [How to get your Plex Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
-- `root_path`: Local path to your pre-roll video files on the system
-- `plex_path`: Mapped path in Plex to the pre-roll video files
-- `patterns`: Directory names to match for specific pre-roll seasons or events
+Edit `config.yaml` to define your pre-roll events:
 
-## Docker Usage
+```yaml
+plex:
+  url: http://YOUR_PLEX_IP:PORT           # Optional, gets overridden by PLEX_URL in docker-compose.yml
+  token: YOUR_PLEX_TOKEN                  # Optional, gets overridden by PLEX_TOKEN in docker-compose.yml
 
-To create and run the Docker container, use the provided `docker-compose.yml` file.
-Before starting, ensure you have a valid `config.yaml` in the same directory.
+paths:
+  root_path: /local-preroll               # Inside container
+  plex_path: /path/in/plex                # How Plex sees it
 
-```bash
-docker-compose up -d
+always:
+  - name: "Default"
+    patterns:
+      - "/"                               # Default pre-rolls
+
+events:
+  - name: "Christmas"
+    start_date: YYYY-12-24
+    end_date: YYYY-12-25
+    patterns:
+      - "/christmas"
 ```
 
-A docker image should be available in the GHCR.
+## Local Development
+
+### Requirements
+
+- Python 3.11+
+- PyYAML
+- requests
+
+### Installation
+
+```bash
+pip3 install -r requirements.txt
+```
+
+### Run
+
+```bash
+python3 main.py
+```
+
+## Troubleshooting
+
+### No logs appearing
+
+Make sure `PYTHONUNBUFFERED=1` is set in docker-compose.yml
+
+### Pre-rolls not updating
+
+1. Check logs: `docker-compose logs prerollarr`
+2. Verify Plex URL and token are correct
+3. Verify PLEX_PATH matches your Plex library structure
+4. Ensure pre-roll video files exist in the mounted volume
+
+### Permission denied errors
+
+Ensure the pre-roll directory is readable by Docker
+
+## License
+
+MIT

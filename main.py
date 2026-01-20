@@ -6,7 +6,13 @@ from datetime import datetime
 from urllib.parse import quote
 
 
-def load_config(config_path='config.yaml'):
+def load_config(config_path=None):
+    if config_path is None:
+        # Try mounted location first, then fallback to current directory
+        if os.path.exists('/app/config.yaml'):
+            config_path = '/app/config.yaml'
+        else:
+            config_path = 'config.yaml'
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 

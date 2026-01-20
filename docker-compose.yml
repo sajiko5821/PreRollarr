@@ -5,17 +5,20 @@ services:
     environment:
       # Disable Python buffering so logs appear immediately
       - PYTHONUNBUFFERED=1
+
       # Plex Server connection (overrides config.yaml)
       - PLEX_URL=http://localhost:32400
       - PLEX_TOKEN=PERSONAL_PLEX_TOKEN
-      # How many times per day should the pre-rolls be updated?
-      # Options: 1, 2, 3, 4, 6, 8, 12, 24 (etc.)
-      - UPDATES_PER_DAY=24
+
       # Path in Plex where the pre-rolls are located
       - PLEX_PATH=/tests/PreRoll
+
+      # How many times per day should the pre-rolls be updated?
+      - UPDATES_PER_DAY=24
+
     volumes:
       # Configuration directory
-      - ./config.yaml:/app/config.yaml:ro
+      - ./appdata/config.yaml:/app/config.yaml:ro
       # Pre-roll video files directory (map your local Plex media)
-      - /Volumes/plex_test/PreRoll:/local-preroll:ro
+      - /LOCAL_FILE_PATH_TO/PreRoll:/local-preroll:ro
     restart: unless-stopped
