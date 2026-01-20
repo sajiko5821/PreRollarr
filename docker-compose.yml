@@ -1,7 +1,7 @@
 services:
-  prerollarr:
+  PreRollarr:
     build: .
-    container_name: prerollarr
+    container_name: PreRollarr
     environment:
       # Disable Python buffering so logs appear immediately
       - PYTHONUNBUFFERED=1
