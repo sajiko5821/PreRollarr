@@ -4,6 +4,8 @@
 
 <h1 align="center">PreRollarr</h1>
 
+[![Build and Push Docker Image](https://github.com/sajiko5821/PreRollarr/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/sajiko5821/PreRollarr/actions/workflows/docker-publish.yml)
+
 Automates the management of pre-roll videos in Plex. The application monitors seasonal events and updates your Plex pre-roll settings accordingly.
 
 ## Features
