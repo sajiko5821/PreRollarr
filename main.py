@@ -12,7 +12,7 @@ def load_config(config_path=None):
         if os.path.exists('/app/config.yaml'):
             config_path = '/app/config.yaml'
         else:
-            config_path = 'config.yaml'
+            config_path = 'fallback_config.yaml'
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
