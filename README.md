@@ -33,3 +33,5 @@ Before starting, ensure you have a valid `config.yaml` in the same directory.
 ```bash
 docker-compose up -d
 ```
+
+A docker image should be available in the GHCR.
