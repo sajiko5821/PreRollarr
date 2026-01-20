@@ -1,10 +1,12 @@
 plex:
-  url: http://localhost:PORT
-  token: PLEX-TOKEN
+  url: http://localhost:32400
+  token: X-PLEX_TOKEN
 
 paths:
-  root_path: /LOCAL_FILE_PATH_TO/PreRoll
-  plex_path: /MAPPED_PATH_IN_PLEX_TO_PREROLL
+  # Docker path for actual pre-roll files
+  root_path: /local-preroll
+  # Plex path - can be overridden by PLEX_PATH environment variable
+  plex_path: /tests/PreRoll
 
 always:
   - name: "Default"
@@ -16,7 +18,7 @@ events:
     start_date: YYYY-01-01
     end_date: YYYY-01-02
     patterns:
-      - "/silvester" # Looks inside /LOCAL_FILE_PATH_TO/PreRoll/silvester
+      - "/silvester" # Looks inside /local-preroll/silvester
   - name: "EarlyWinter"
     start_date: YYYY-01-03
     end_date: YYYY-01-31
