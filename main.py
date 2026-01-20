@@ -5,9 +5,11 @@ import time
 from datetime import datetime
 from urllib.parse import quote
 
+
 def load_config(config_path='config.yaml'):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
+
 
 def get_plex_mapped_files(root_path, plex_path, patterns):
     final_paths = []
@@ -30,14 +32,15 @@ def get_plex_mapped_files(root_path, plex_path, patterns):
             elif os.path.isfile(full_local_path):
                 plex_ready_path = full_local_path.replace(root_path, plex_path)
                 final_paths.append(plex_ready_path)
-    
+
     return final_paths
+
 
 def update_plex_preroll(server_url, token, preroll_string):
     """Sends the PUT request to Plex to update the pre-roll setting."""
-    # We URL-encode the string to handle spaces and special characters safely
+    # URL-encode the string to handle spaces and special characters safely
     encoded_preroll = quote(preroll_string)
-    
+
     endpoint = f"{server_url}/:/prefs"
     params = {'CinemaTrailersPrerollID': preroll_string}
     headers = {'X-Plex-Token': token}
@@ -45,7 +48,7 @@ def update_plex_preroll(server_url, token, preroll_string):
     try:
         # Plex expects a PUT request to the /:/prefs endpoint
         response = requests.put(endpoint, params=params, headers=headers)
-        
+
         if response.status_code == 200:
             print("Successfully updated Plex Pre-Roll settings.")
         else:
@@ -54,19 +57,19 @@ def update_plex_preroll(server_url, token, preroll_string):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 def update_prerolls():
     """Main function to update pre-rolls."""
     config = load_config()
     today = datetime.now().date()
     current_year = today.year
-    
-    # Config Variables
-    plex_url = config['plex']['url']
-    plex_token = config['plex']['token']
+
+    # Config Variables - allow override via environment variables
+    plex_url = os.getenv('PLEX_URL', config['plex']['url'])
+    plex_token = os.getenv('PLEX_TOKEN', config['plex']['token'])
     root_path = config['paths']['root_path']
-    # Allow plex_path to be overridden by environment variable
     plex_path = os.getenv('PLEX_PATH', config['paths']['plex_path'])
-    
+
     matched_patterns = None
     event_name = "Default"
 
@@ -87,7 +90,7 @@ def update_prerolls():
 
     # 2. Path Processing
     plex_files = get_plex_mapped_files(root_path, plex_path, matched_patterns)
-    
+
     if not plex_files:
         print(f"[{datetime.now()}] [{event_name}] No files found. Skipping update.")
         return
@@ -99,24 +102,25 @@ def update_prerolls():
     # 4. API Request
     update_plex_preroll(plex_url, plex_token, preroll_string)
 
+
 def main():
     """Main loop - runs the update at specified intervals."""
-    # Get update frequency from environment variable (times per day)
     updates_per_day = int(os.getenv('UPDATES_PER_DAY', '4'))
     interval_seconds = (24 * 3600) // updates_per_day
-    
+
     print(f"PreRollarr started. Will update {updates_per_day} times per day (every {interval_seconds} seconds)")
     print(f"First update at: {datetime.now()}")
-    
+
     # Run indefinitely
     while True:
         try:
             update_prerolls()
         except Exception as e:
             print(f"[{datetime.now()}] Error during update: {e}")
-        
+
         # Wait for the next update
         time.sleep(interval_seconds)
+
 
 if __name__ == "__main__":
     main()

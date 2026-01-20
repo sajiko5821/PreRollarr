@@ -5,6 +5,9 @@ services:
     environment:
       # Disable Python buffering so logs appear immediately
       - PYTHONUNBUFFERED=1
+      # Plex Server connection (overrides config.yaml)
+      - PLEX_URL=http://localhost:32400
+      - PLEX_TOKEN=PERSONAL_PLEX_TOKEN
       # How many times per day should the pre-rolls be updated?
       # Options: 1, 2, 3, 4, 6, 8, 12, 24 (etc.)
       - UPDATES_PER_DAY=24
