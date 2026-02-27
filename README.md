@@ -4,7 +4,9 @@
 
 <h1 align="center">PreRollarr</h1>
 
-[![Build and Push Docker Image](https://github.com/sajiko5821/PreRollarr/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/sajiko5821/PreRollarr/actions/workflows/docker-publish.yml)
+[![Docker Image Version](https://img.shields.io/github/v/tag/sajiko5821/prerollarr?label=version&logo=docker&color=2496ED)](https://github.com/sajiko5821/prerollarr/pkgs/container/prerollarr)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sajiko5821/prerollarr/docker-publish.yml?branch=main&label=build&logo=github)](https://github.com/sajiko5821/prerollarr/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Automates the management of pre-roll videos in Plex. The application monitors seasonal events and updates your Plex pre-roll settings accordingly.
 
