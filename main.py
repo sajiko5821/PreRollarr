@@ -183,6 +183,24 @@ def api_config():
     })
 
 
+@app.route('/api/folders')
+def api_folders():
+    """List subdirectories under root_path for folder selection."""
+    config = load_config()
+    root_path = config['paths']['root_path']
+    folders = ['/']
+    try:
+        for item in sorted(os.listdir(root_path)):
+            if item.startswith('.'):
+                continue
+            full = os.path.join(root_path, item)
+            if os.path.isdir(full):
+                folders.append('/' + item)
+    except OSError:
+        pass
+    return jsonify({'folders': folders})
+
+
 @app.route('/api/events', methods=['POST'])
 def api_add_event():
     """Append a new event."""

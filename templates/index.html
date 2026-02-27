@@ -221,6 +221,10 @@
             gap: 0.3rem;
         }
 
+        .event-meta span:first-child {
+            min-width: 18em;
+        }
+
         .event-actions {
             display: flex;
             gap: 0.5rem;
@@ -303,9 +307,71 @@
             font-size: 0.9rem;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--accent);
+        }
+
+        .form-group select option {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* Date picker dark theme */
+        .form-group input[type="date"] {
+            color-scheme: dark;
+        }
+
+        /* Folder select + custom input combo */
+        .folder-combo {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .folder-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            min-height: 1.5rem;
+        }
+
+        .folder-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--surface2);
+            color: var(--text);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .folder-tag .remove-tag {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        .folder-tag .remove-tag:hover {
+            color: var(--accent);
+        }
+
+        .folder-add-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .folder-add-row select,
+        .folder-add-row input {
+            flex: 1;
+        }
+
+        .folder-add-row .btn {
+            flex-shrink: 0;
         }
 
         .form-group .hint {
@@ -415,22 +481,33 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="startDate" data-i18n="startLabel">Start (DD.MM)</label>
-                        <input type="text" id="startDate" required pattern="\d{2}\.\d{2}" title="DD.MM">
-                        <div class="hint" data-i18n="startHint">Format: DD.MM (year is added automatically)</div>
+                        <label for="startDate" data-i18n="startLabel">Start</label>
+                        <input type="date" id="startDate" required>
                     </div>
                     <div class="form-group">
-                        <label for="endDate" data-i18n="endLabel">End (DD.MM)</label>
-                        <input type="text" id="endDate" required pattern="\d{2}\.\d{2}" title="DD.MM">
-                        <div class="hint" data-i18n="endHint">Format: DD.MM</div>
+                        <label for="endDate" data-i18n="endLabel">End</label>
+                        <input type="date" id="endDate" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="eventPatterns" data-i18n="folder">Folder</label>
-                    <input type="text" id="eventPatterns" required>
-                    <div class="hint" data-i18n="folderHint">Relative to root_path. Separate multiple with commas, e.g.
-                        /xmas, /winter</div>
+                    <label data-i18n="folder">Folder</label>
+                    <div class="folder-combo">
+                        <div class="folder-tags" id="eventFolderTags"></div>
+                        <div class="folder-add-row">
+                            <select id="eventFolderSelect">
+                                <option value="" data-i18n="selectFolder">— Select folder —</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addSelectedFolder('event')"
+                                data-i18n="add">Add</button>
+                        </div>
+                        <div class="folder-add-row">
+                            <input type="text" id="eventFolderCustom" data-i18n-placeholder="customFolderPlaceholder">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomFolder('event')"
+                                data-i18n="add">Add</button>
+                        </div>
+                    </div>
+                    <div class="hint" data-i18n="folderHint">Select from available folders or type a custom path</div>
                 </div>
 
                 <div class="modal-actions">
@@ -448,10 +525,22 @@
             <h2 data-i18n="editDefaultTitle">Edit Default Pre-Rolls</h2>
             <form id="defaultForm" onsubmit="saveDefault(event)">
                 <div class="form-group">
-                    <label for="defaultPatternsInput" data-i18n="folder">Folder</label>
-                    <input type="text" id="defaultPatternsInput" required>
-                    <div class="hint" data-i18n="defaultFolderHint">Folder relative to root_path. Separate multiple with
-                        commas.</div>
+                    <label data-i18n="folder">Folder</label>
+                    <div class="folder-combo">
+                        <div class="folder-tags" id="defaultFolderTags"></div>
+                        <div class="folder-add-row">
+                            <select id="defaultFolderSelect">
+                                <option value="" data-i18n="selectFolder">— Select folder —</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="addSelectedFolder('default')" data-i18n="add">Add</button>
+                        </div>
+                        <div class="folder-add-row">
+                            <input type="text" id="defaultFolderCustom" data-i18n-placeholder="customFolderPlaceholder">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomFolder('default')"
+                                data-i18n="add">Add</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeDefaultModal()"
@@ -481,23 +570,27 @@
                 newEventTitle: 'New Event',
                 editEventTitle: 'Edit Event',
                 name: 'Name',
-                startLabel: 'Start (DD.MM)',
-                endLabel: 'End (DD.MM)',
-                startHint: 'Format: DD.MM (year is added automatically)',
-                endHint: 'Format: DD.MM',
+                startLabel: 'Start',
+                endLabel: 'End',
+                startHint: '',
+                endHint: '',
                 folder: 'Folder',
-                folderHint: 'Relative to root_path. Separate multiple with commas, e.g. /xmas, /winter',
+                folderHint: 'Select from available folders or type a custom path',
                 cancel: 'Cancel',
                 save: 'Save',
+                add: 'Add',
+                selectFolder: '— Select folder —',
+                customFolderPlaceholder: 'Custom path, e.g. /xmas',
+                folderRequired: 'At least one folder is required',
                 editDefaultTitle: 'Edit Default Pre-Rolls',
-                defaultFolderHint: 'Folder relative to root_path. Separate multiple with commas.',
+                defaultFolderHint: 'Select from available folders or type a custom path.',
                 activeEvent: 'Active event:',
                 noActive: 'No event active —',
                 defaultUsed: 'Default Pre-Rolls are in use',
                 active: 'Active',
                 namePlaceholder: 'e.g. Christmas',
-                startPlaceholder: 'DD.MM, e.g. 01.12',
-                endPlaceholder: 'DD.MM, e.g. 30.12',
+                startPlaceholder: '',
+                endPlaceholder: '',
                 folderPlaceholder: 'e.g. /xmas',
                 defaultPlaceholder: 'e.g. /',
                 loadError: 'Failed to load config',
@@ -523,23 +616,27 @@
                 newEventTitle: 'Neues Event',
                 editEventTitle: 'Event bearbeiten',
                 name: 'Name',
-                startLabel: 'Start (TT.MM)',
-                endLabel: 'Ende (TT.MM)',
-                startHint: 'Format: TT.MM (Jahr wird automatisch ergänzt)',
-                endHint: 'Format: TT.MM',
+                startLabel: 'Start',
+                endLabel: 'Ende',
+                startHint: '',
+                endHint: '',
                 folder: 'Ordner',
-                folderHint: 'Relativ zu root_path. Mehrere durch Komma getrennt, z.B. /xmas, /winter',
+                folderHint: 'Aus verfügbaren Ordnern wählen oder eigenen Pfad eingeben',
                 cancel: 'Abbrechen',
                 save: 'Speichern',
+                add: 'Hinzufügen',
+                selectFolder: '— Ordner wählen —',
+                customFolderPlaceholder: 'Eigener Pfad, z.B. /xmas',
+                folderRequired: 'Mindestens ein Ordner ist erforderlich',
                 editDefaultTitle: 'Standard Pre-Rolls bearbeiten',
-                defaultFolderHint: 'Ordner relativ zu root_path. Mehrere durch Komma getrennt.',
+                defaultFolderHint: 'Aus verfügbaren Ordnern wählen oder eigenen Pfad eingeben.',
                 activeEvent: 'Aktives Event:',
                 noActive: 'Kein Event aktiv —',
                 defaultUsed: 'Standard Pre-Rolls werden verwendet',
                 active: 'Aktiv',
                 namePlaceholder: 'z.B. Weihnachten',
-                startPlaceholder: 'TT.MM, z.B. 01.12',
-                endPlaceholder: 'TT.MM, z.B. 30.12',
+                startPlaceholder: '',
+                endPlaceholder: '',
                 folderPlaceholder: 'z.B. /xmas',
                 defaultPlaceholder: 'z.B. /',
                 loadError: 'Fehler beim Laden der Konfiguration',
@@ -573,17 +670,17 @@
                 const key = el.getAttribute('data-i18n');
                 el.textContent = t(key);
             });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = t(key);
+            });
             // Placeholders
             const nameEl = document.getElementById('eventName');
             if (nameEl) nameEl.placeholder = t('namePlaceholder');
-            const startEl = document.getElementById('startDate');
-            if (startEl) startEl.placeholder = t('startPlaceholder');
-            const endEl = document.getElementById('endDate');
-            if (endEl) endEl.placeholder = t('endPlaceholder');
-            const patEl = document.getElementById('eventPatterns');
-            if (patEl) patEl.placeholder = t('folderPlaceholder');
-            const defEl = document.getElementById('defaultPatternsInput');
-            if (defEl) defEl.placeholder = t('defaultPlaceholder');
+            const customEl = document.getElementById('eventFolderCustom');
+            if (customEl) customEl.placeholder = t('customFolderPlaceholder');
+            const defCustomEl = document.getElementById('defaultFolderCustom');
+            if (defCustomEl) defCustomEl.placeholder = t('customFolderPlaceholder');
         }
 
         // ——— Date helpers ———
@@ -603,30 +700,37 @@
         }
 
         function configDateToInput(configDate) {
-            // "YYYY-MM-DD" → "DD.MM" (for form fields)
-            const parts = configDate.replace('YYYY-', '').split('-'); // ["MM", "DD"]
-            return parts[1] + '.' + parts[0];
+            // "YYYY-MM-DD" → "2026-MM-DD" (for date input type=date, needs full date)
+            const year = new Date().getFullYear();
+            return configDate.replace('YYYY', String(year));
         }
 
-        function displayDateToConfig(displayDate) {
-            // "DD.MM" → "YYYY-MM-DD"
-            const parts = displayDate.split('.'); // ["DD", "MM"]
-            return 'YYYY-' + parts[1] + '-' + parts[0];
+        function inputDateToConfig(inputDate) {
+            // "2026-MM-DD" → "YYYY-MM-DD"
+            return 'YYYY' + inputDate.substring(4);
         }
 
         // ——— State ———
         let events = [];
         let defaultPatterns = ['/'];
         let activeIndex = -1;
+        let availableFolders = ['/'];
+        let eventSelectedFolders = [];
+        let defaultSelectedFolders = [];
 
         // ——— Load ———
         async function loadData() {
             try {
-                const res = await fetch(`${API}/api/config`);
-                const data = await res.json();
+                const [configRes, foldersRes] = await Promise.all([
+                    fetch(`${API}/api/config`),
+                    fetch(`${API}/api/folders`),
+                ]);
+                const data = await configRes.json();
+                const fData = await foldersRes.json();
                 events = data.events || [];
                 defaultPatterns = data.always || ['/'];
                 activeIndex = data.active_index;
+                availableFolders = fData.folders || ['/'];
                 render();
             } catch (e) {
                 showToast(t('loadError'), true);
@@ -766,10 +870,13 @@
                 document.getElementById('eventName').value = ev.name;
                 document.getElementById('startDate').value = configDateToInput(ev.start_date);
                 document.getElementById('endDate').value = configDateToInput(ev.end_date);
-                document.getElementById('eventPatterns').value = (ev.patterns || []).join(', ');
+                eventSelectedFolders = [...(ev.patterns || [])];
             } else {
                 document.getElementById('modalTitle').textContent = t('newEventTitle');
+                eventSelectedFolders = [];
             }
+            populateFolderSelect('eventFolderSelect');
+            renderFolderTags('event');
             document.getElementById('modalOverlay').classList.add('open');
         }
 
@@ -785,12 +892,14 @@
             e.preventDefault();
             const index = parseInt(document.getElementById('editIndex').value);
             const name = document.getElementById('eventName').value.trim();
-            const startDate = displayDateToConfig(document.getElementById('startDate').value.trim());
-            const endDate = displayDateToConfig(document.getElementById('endDate').value.trim());
-            const patterns = document.getElementById('eventPatterns').value
-                .split(',')
-                .map(p => p.trim())
-                .filter(p => p);
+            const startDate = inputDateToConfig(document.getElementById('startDate').value);
+            const endDate = inputDateToConfig(document.getElementById('endDate').value);
+            const patterns = [...eventSelectedFolders];
+
+            if (patterns.length === 0) {
+                showToast(t('folderRequired') || 'At least one folder is required', true);
+                return;
+            }
 
             const eventData = { name, start_date: startDate, end_date: endDate, patterns };
 
@@ -844,7 +953,9 @@
 
         // ——— Default ———
         function editDefault() {
-            document.getElementById('defaultPatternsInput').value = defaultPatterns.join(', ');
+            defaultSelectedFolders = [...defaultPatterns];
+            populateFolderSelect('defaultFolderSelect');
+            renderFolderTags('default');
             document.getElementById('defaultModalOverlay').classList.add('open');
         }
 
@@ -858,10 +969,8 @@
 
         async function saveDefault(e) {
             e.preventDefault();
-            const patterns = document.getElementById('defaultPatternsInput').value
-                .split(',')
-                .map(p => p.trim())
-                .filter(p => p);
+            const patterns = [...defaultSelectedFolders];
+            if (patterns.length === 0) patterns.push('/');
             try {
                 const res = await fetch(`${API}/api/always`, {
                     method: 'PUT',
@@ -878,6 +987,62 @@
             } catch (err) {
                 showToast(t('networkError'), true);
             }
+        }
+
+        // ——— Folder selection helpers ———
+        function populateFolderSelect(selectId) {
+            const sel = document.getElementById(selectId);
+            const current = selectId === 'eventFolderSelect' ? eventSelectedFolders : defaultSelectedFolders;
+            sel.innerHTML = `<option value="">${t('selectFolder')}</option>`;
+            availableFolders.forEach(f => {
+                if (!current.includes(f)) {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.textContent = f;
+                    sel.appendChild(opt);
+                }
+            });
+        }
+
+        function renderFolderTags(context) {
+            const container = document.getElementById(context === 'event' ? 'eventFolderTags' : 'defaultFolderTags');
+            const folders = context === 'event' ? eventSelectedFolders : defaultSelectedFolders;
+            container.innerHTML = folders.map((f, i) =>
+                `<span class="folder-tag">${escapeHtml(f)}<span class="remove-tag" onclick="removeFolder('${context}', ${i})">&times;</span></span>`
+            ).join('');
+        }
+
+        function addSelectedFolder(context) {
+            const selId = context === 'event' ? 'eventFolderSelect' : 'defaultFolderSelect';
+            const sel = document.getElementById(selId);
+            const val = sel.value;
+            if (!val) return;
+            const arr = context === 'event' ? eventSelectedFolders : defaultSelectedFolders;
+            if (!arr.includes(val)) arr.push(val);
+            populateFolderSelect(selId);
+            renderFolderTags(context);
+        }
+
+        function addCustomFolder(context) {
+            const inputId = context === 'event' ? 'eventFolderCustom' : 'defaultFolderCustom';
+            const input = document.getElementById(inputId);
+            let val = input.value.trim();
+            if (!val) return;
+            if (!val.startsWith('/')) val = '/' + val;
+            const arr = context === 'event' ? eventSelectedFolders : defaultSelectedFolders;
+            if (!arr.includes(val)) arr.push(val);
+            input.value = '';
+            const selId = context === 'event' ? 'eventFolderSelect' : 'defaultFolderSelect';
+            populateFolderSelect(selId);
+            renderFolderTags(context);
+        }
+
+        function removeFolder(context, idx) {
+            const arr = context === 'event' ? eventSelectedFolders : defaultSelectedFolders;
+            arr.splice(idx, 1);
+            const selId = context === 'event' ? 'eventFolderSelect' : 'defaultFolderSelect';
+            populateFolderSelect(selId);
+            renderFolderTags(context);
         }
 
         // ——— Toast ———
