@@ -19,7 +19,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: ["main", "master", "dev", "webapp"]
+    branches: ["main", "master", "dev", "webapp", "webapp_universal_docker"]
     tags: ["v*"]
   pull_request:
     branches: ["main"]
