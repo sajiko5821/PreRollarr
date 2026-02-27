@@ -10,12 +10,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY main.py .
 COPY fallback_config.yaml .
+COPY templates/ templates/
 
 # Create volume directories
 RUN mkdir -p /config /preroll
 
 # Ensure unbuffered output
 ENV PYTHONUNBUFFERED=1
+
+# Expose web UI port
+EXPOSE 8008
 
 # Run the application
 CMD ["python", "-u", "main.py"]

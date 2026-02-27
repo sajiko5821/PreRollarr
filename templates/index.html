@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreRollarr</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface2: #0f3460;
+            --accent: #e94560;
+            --accent-hover: #c73650;
+            --text: #eee;
+            --text-muted: #9a9ab0;
+            --success: #4caf50;
+            --border: #2a2a4a;
+            --radius: 10px;
+            --drag-bg: rgba(15, 52, 96, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        header h1 span {
+            color: var(--accent);
+        }
+
+        .lang-select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            padding: 0.35rem 0.6rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .lang-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .status-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            gap: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .status-bar .active-event {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #1a4a7a;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-danger:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.8rem;
+        }
+
+        /* Default section */
+        .default-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .default-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .default-card .value {
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        /* Event cards */
+        .events-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .event-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            transition: border-color 0.2s, opacity 0.2s, transform 0.2s;
+        }
+
+        .event-card:hover {
+            border-color: var(--surface2);
+        }
+
+        .event-card.active {
+            border-left: 3px solid var(--success);
+        }
+
+        .event-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .event-info .badge {
+            font-size: 0.65rem;
+            background: var(--success);
+            color: #fff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .event-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Drag & Drop */
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            padding: 0.25rem;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .event-card.dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+
+        .event-card.drag-over {
+            border-color: var(--accent);
+            background: var(--drag-bg);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group .hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: #fff;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Pre<span>Rollarr</span></h1>
+        <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+        </select>
+    </header>
+
+    <div class="status-bar" id="statusBar">
+        <span>Loading…</span>
+    </div>
+
+    <div class="container">
+        <!-- Default Pre-Rolls -->
+        <div class="section-header">
+            <h2 data-i18n="defaultTitle">Default Pre-Rolls</h2>
+            <button class="btn btn-secondary btn-sm" onclick="editDefault()" data-i18n="edit">Edit</button>
+        </div>
+        <div class="default-card" id="defaultCard">
+            <div class="label" data-i18n="defaultLabel">Folder (used when no event is active)</div>
+            <div class="value" id="defaultPatterns">/</div>
+        </div>
+
+        <!-- Events -->
+        <div class="section-header">
+            <h2 data-i18n="eventsTitle">Events</h2>
+            <button class="btn btn-primary" onclick="openModal()" data-i18n="newEvent">+ New Event</button>
+        </div>
+        <div class="events-grid" id="eventsGrid">
+            <div class="empty-state">
+                <p data-i18n="noEvents">No events configured.</p>
+                <button class="btn btn-primary" onclick="openModal()" data-i18n="createFirst">Create first
+                    event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+        <div class="modal">
+            <h2 id="modalTitle" data-i18n="newEventTitle">New Event</h2>
+            <form id="eventForm" onsubmit="saveEvent(event)">
+                <input type="hidden" id="editIndex" value="-1">
+
+                <div class="form-group">
+                    <label for="eventName" data-i18n="name">Name</label>
+                    <input type="text" id="eventName" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startDate" data-i18n="startLabel">Start (DD.MM)</label>
+                        <input type="text" id="startDate" required pattern="\d{2}\.\d{2}" title="DD.MM">
+                        <div class="hint" data-i18n="startHint">Format: DD.MM (year is added automatically)</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" data-i18n="endLabel">End (DD.MM)</label>
+                        <input type="text" id="endDate" required pattern="\d{2}\.\d{2}" title="DD.MM">
+                        <div class="hint" data-i18n="endHint">Format: DD.MM</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventPatterns" data-i18n="folder">Folder</label>
+                    <input type="text" id="eventPatterns" required>
+                    <div class="hint" data-i18n="folderHint">Relative to root_path. Separate multiple with commas, e.g.
+                        /xmas, /winter</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Default Edit Modal -->
+    <div class="modal-overlay" id="defaultModalOverlay" onclick="closeDefaultModalOutside(event)">
+        <div class="modal">
+            <h2 data-i18n="editDefaultTitle">Edit Default Pre-Rolls</h2>
+            <form id="defaultForm" onsubmit="saveDefault(event)">
+                <div class="form-group">
+                    <label for="defaultPatternsInput" data-i18n="folder">Folder</label>
+                    <input type="text" id="defaultPatternsInput" required>
+                    <div class="hint" data-i18n="defaultFolderHint">Folder relative to root_path. Separate multiple with
+                        commas.</div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeDefaultModal()"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API = '';
+
+        // ——— i18n ———
+        const LANGS = {
+            en: {
+                defaultTitle: 'Default Pre-Rolls',
+                edit: 'Edit',
+                defaultLabel: 'Folder (used when no event is active)',
+                eventsTitle: 'Events',
+                newEvent: '+ New Event',
+                noEvents: 'No events configured.',
+                createFirst: 'Create first event',
+                newEventTitle: 'New Event',
+                editEventTitle: 'Edit Event',
+                name: 'Name',
+                startLabel: 'Start (DD.MM)',
+                endLabel: 'End (DD.MM)',
+                startHint: 'Format: DD.MM (year is added automatically)',
+                endHint: 'Format: DD.MM',
+                folder: 'Folder',
+                folderHint: 'Relative to root_path. Separate multiple with commas, e.g. /xmas, /winter',
+                cancel: 'Cancel',
+                save: 'Save',
+                editDefaultTitle: 'Edit Default Pre-Rolls',
+                defaultFolderHint: 'Folder relative to root_path. Separate multiple with commas.',
+                activeEvent: 'Active event:',
+                noActive: 'No event active —',
+                defaultUsed: 'Default Pre-Rolls are in use',
+                active: 'Active',
+                namePlaceholder: 'e.g. Christmas',
+                startPlaceholder: 'DD.MM, e.g. 01.12',
+                endPlaceholder: 'DD.MM, e.g. 30.12',
+                folderPlaceholder: 'e.g. /xmas',
+                defaultPlaceholder: 'e.g. /',
+                loadError: 'Failed to load config',
+                eventCreated: 'Event created',
+                eventUpdated: 'Event updated',
+                saveError: 'Failed to save',
+                networkError: 'Network error',
+                eventDeleted: 'Event deleted',
+                deleteError: 'Failed to delete',
+                moveError: 'Failed to move',
+                defaultUpdated: 'Default pre-rolls updated',
+                deleteConfirm: 'Really delete event',
+                loading: 'Loading…',
+            },
+            de: {
+                defaultTitle: 'Standard Pre-Rolls',
+                edit: 'Bearbeiten',
+                defaultLabel: 'Ordner (wenn kein Event aktiv ist)',
+                eventsTitle: 'Events',
+                newEvent: '+ Neues Event',
+                noEvents: 'Keine Events konfiguriert.',
+                createFirst: 'Erstes Event erstellen',
+                newEventTitle: 'Neues Event',
+                editEventTitle: 'Event bearbeiten',
+                name: 'Name',
+                startLabel: 'Start (TT.MM)',
+                endLabel: 'Ende (TT.MM)',
+                startHint: 'Format: TT.MM (Jahr wird automatisch ergänzt)',
+                endHint: 'Format: TT.MM',
+                folder: 'Ordner',
+                folderHint: 'Relativ zu root_path. Mehrere durch Komma getrennt, z.B. /xmas, /winter',
+                cancel: 'Abbrechen',
+                save: 'Speichern',
+                editDefaultTitle: 'Standard Pre-Rolls bearbeiten',
+                defaultFolderHint: 'Ordner relativ zu root_path. Mehrere durch Komma getrennt.',
+                activeEvent: 'Aktives Event:',
+                noActive: 'Kein Event aktiv —',
+                defaultUsed: 'Standard Pre-Rolls werden verwendet',
+                active: 'Aktiv',
+                namePlaceholder: 'z.B. Weihnachten',
+                startPlaceholder: 'TT.MM, z.B. 01.12',
+                endPlaceholder: 'TT.MM, z.B. 30.12',
+                folderPlaceholder: 'z.B. /xmas',
+                defaultPlaceholder: 'z.B. /',
+                loadError: 'Fehler beim Laden der Konfiguration',
+                eventCreated: 'Event erstellt',
+                eventUpdated: 'Event aktualisiert',
+                saveError: 'Fehler beim Speichern',
+                networkError: 'Netzwerkfehler',
+                eventDeleted: 'Event gelöscht',
+                deleteError: 'Fehler beim Löschen',
+                moveError: 'Fehler beim Verschieben',
+                defaultUpdated: 'Standard Pre-Rolls aktualisiert',
+                deleteConfirm: 'Event wirklich löschen',
+                loading: 'Lade…',
+            },
+        };
+
+        let currentLang = localStorage.getItem('prerollarr-lang') || 'en';
+
+        function t(key) { return (LANGS[currentLang] || LANGS.en)[key] || key; }
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('prerollarr-lang', lang);
+            document.getElementById('langSelect').value = lang;
+            applyI18n();
+            render();
+        }
+
+        function applyI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            // Placeholders
+            const nameEl = document.getElementById('eventName');
+            if (nameEl) nameEl.placeholder = t('namePlaceholder');
+            const startEl = document.getElementById('startDate');
+            if (startEl) startEl.placeholder = t('startPlaceholder');
+            const endEl = document.getElementById('endDate');
+            if (endEl) endEl.placeholder = t('endPlaceholder');
+            const patEl = document.getElementById('eventPatterns');
+            if (patEl) patEl.placeholder = t('folderPlaceholder');
+            const defEl = document.getElementById('defaultPatternsInput');
+            if (defEl) defEl.placeholder = t('defaultPlaceholder');
+        }
+
+        // ——— Date helpers ———
+        // Config stores YYYY-MM-DD, input fields use DD.MM, display uses "DD. MonthName"
+        const MONTH_NAMES = {
+            en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+        };
+
+        function configDateToDisplay(configDate) {
+            // "YYYY-MM-DD" → "01. January"
+            const parts = configDate.replace('YYYY-', '').split('-'); // ["MM", "DD"]
+            const monthIdx = parseInt(parts[0], 10) - 1;
+            const day = parts[1];
+            const months = MONTH_NAMES[currentLang] || MONTH_NAMES.en;
+            return day + '. ' + months[monthIdx];
+        }
+
+        function configDateToInput(configDate) {
+            // "YYYY-MM-DD" → "DD.MM" (for form fields)
+            const parts = configDate.replace('YYYY-', '').split('-'); // ["MM", "DD"]
+            return parts[1] + '.' + parts[0];
+        }
+
+        function displayDateToConfig(displayDate) {
+            // "DD.MM" → "YYYY-MM-DD"
+            const parts = displayDate.split('.'); // ["DD", "MM"]
+            return 'YYYY-' + parts[1] + '-' + parts[0];
+        }
+
+        // ——— State ———
+        let events = [];
+        let defaultPatterns = ['/'];
+        let activeIndex = -1;
+
+        // ——— Load ———
+        async function loadData() {
+            try {
+                const res = await fetch(`${API}/api/config`);
+                const data = await res.json();
+                events = data.events || [];
+                defaultPatterns = data.always || ['/'];
+                activeIndex = data.active_index;
+                render();
+            } catch (e) {
+                showToast(t('loadError'), true);
+            }
+        }
+
+        // ——— Render ———
+        function render() {
+            applyI18n();
+
+            // Default
+            document.getElementById('defaultPatterns').textContent = defaultPatterns.join(', ');
+
+            // Status bar
+            const statusBar = document.getElementById('statusBar');
+            if (activeIndex >= 0 && events[activeIndex]) {
+                statusBar.innerHTML = `<span>${t('activeEvent')} <span class="active-event">${escapeHtml(events[activeIndex].name)}</span></span>`;
+            } else {
+                statusBar.innerHTML = `<span>${t('noActive')} <span class="active-event">${t('defaultUsed')}</span></span>`;
+            }
+
+            // Events
+            const grid = document.getElementById('eventsGrid');
+            if (events.length === 0) {
+                grid.innerHTML = `<div class="empty-state">
+      <p>${t('noEvents')}</p>
+      <button class="btn btn-primary" onclick="openModal()">${t('createFirst')}</button>
+    </div>`;
+                return;
+            }
+
+            grid.innerHTML = events.map((ev, i) => {
+                const isActive = i === activeIndex;
+                const startDisplay = configDateToDisplay(ev.start_date);
+                const endDisplay = configDateToDisplay(ev.end_date);
+                const patterns = (ev.patterns || []).join(', ');
+                return `<div class="event-card${isActive ? ' active' : ''}" data-index="${i}" draggable="true">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="event-info">
+        <h3>
+          ${escapeHtml(ev.name)}
+          ${isActive ? `<span class="badge">${t('active')}</span>` : ''}
+        </h3>
+        <div class="event-meta">
+          <span>📅 ${startDisplay} → ${endDisplay}</span>
+          <span>📁 ${escapeHtml(patterns)}</span>
+        </div>
+      </div>
+      <div class="event-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editEvent(${i})">${t('edit')}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEvent(${i})">✕</button>
+      </div>
+    </div>`;
+            }).join('');
+
+            initDragAndDrop();
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        // ——— Drag & Drop ———
+        let dragSrcIndex = null;
+
+        function initDragAndDrop() {
+            const cards = document.querySelectorAll('.event-card[draggable]');
+            cards.forEach(card => {
+                card.addEventListener('dragstart', onDragStart);
+                card.addEventListener('dragend', onDragEnd);
+                card.addEventListener('dragover', onDragOver);
+                card.addEventListener('dragenter', onDragEnter);
+                card.addEventListener('dragleave', onDragLeave);
+                card.addEventListener('drop', onDrop);
+            });
+        }
+
+        function onDragStart(e) {
+            dragSrcIndex = parseInt(this.dataset.index);
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', dragSrcIndex);
+        }
+
+        function onDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.event-card').forEach(c => c.classList.remove('drag-over'));
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function onDragEnter(e) {
+            e.preventDefault();
+            const targetIndex = parseInt(this.dataset.index);
+            if (targetIndex !== dragSrcIndex) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function onDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        async function onDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            const targetIndex = parseInt(this.dataset.index);
+            if (targetIndex === dragSrcIndex || dragSrcIndex === null) return;
+
+            try {
+                const res = await fetch(`${API}/api/events/reorder`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: dragSrcIndex, to: targetIndex }),
+                });
+                if (res.ok) await loadData();
+            } catch (err) {
+                showToast(t('moveError'), true);
+            }
+            dragSrcIndex = null;
+        }
+
+        // ——— Event CRUD ———
+        function openModal(index = -1) {
+            document.getElementById('editIndex').value = index;
+            const form = document.getElementById('eventForm');
+            form.reset();
+
+            if (index >= 0) {
+                const ev = events[index];
+                document.getElementById('modalTitle').textContent = t('editEventTitle');
+                document.getElementById('eventName').value = ev.name;
+                document.getElementById('startDate').value = configDateToInput(ev.start_date);
+                document.getElementById('endDate').value = configDateToInput(ev.end_date);
+                document.getElementById('eventPatterns').value = (ev.patterns || []).join(', ');
+            } else {
+                document.getElementById('modalTitle').textContent = t('newEventTitle');
+            }
+            document.getElementById('modalOverlay').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+        }
+
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        }
+
+        async function saveEvent(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('editIndex').value);
+            const name = document.getElementById('eventName').value.trim();
+            const startDate = displayDateToConfig(document.getElementById('startDate').value.trim());
+            const endDate = displayDateToConfig(document.getElementById('endDate').value.trim());
+            const patterns = document.getElementById('eventPatterns').value
+                .split(',')
+                .map(p => p.trim())
+                .filter(p => p);
+
+            const eventData = { name, start_date: startDate, end_date: endDate, patterns };
+
+            try {
+                let res;
+                if (index >= 0) {
+                    res = await fetch(`${API}/api/events/${index}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData),
+                    });
+                } else {
+                    res = await fetch(`${API}/api/events`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData),
+                    });
+                }
+
+                if (res.ok) {
+                    closeModal();
+                    showToast(index >= 0 ? t('eventUpdated') : t('eventCreated'));
+                    await loadData();
+                } else {
+                    const err = await res.json();
+                    showToast(err.error || t('saveError'), true);
+                }
+            } catch (err) {
+                showToast(t('networkError'), true);
+            }
+        }
+
+        async function deleteEvent(index) {
+            if (!confirm(`${t('deleteConfirm')} "${events[index].name}"?`)) return;
+            try {
+                const res = await fetch(`${API}/api/events/${index}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast(t('eventDeleted'));
+                    await loadData();
+                } else {
+                    showToast(t('deleteError'), true);
+                }
+            } catch (err) {
+                showToast(t('networkError'), true);
+            }
+        }
+
+        function editEvent(index) {
+            openModal(index);
+        }
+
+        // ——— Default ———
+        function editDefault() {
+            document.getElementById('defaultPatternsInput').value = defaultPatterns.join(', ');
+            document.getElementById('defaultModalOverlay').classList.add('open');
+        }
+
+        function closeDefaultModal() {
+            document.getElementById('defaultModalOverlay').classList.remove('open');
+        }
+
+        function closeDefaultModalOutside(e) {
+            if (e.target === document.getElementById('defaultModalOverlay')) closeDefaultModal();
+        }
+
+        async function saveDefault(e) {
+            e.preventDefault();
+            const patterns = document.getElementById('defaultPatternsInput').value
+                .split(',')
+                .map(p => p.trim())
+                .filter(p => p);
+            try {
+                const res = await fetch(`${API}/api/always`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patterns }),
+                });
+                if (res.ok) {
+                    closeDefaultModal();
+                    showToast(t('defaultUpdated'));
+                    await loadData();
+                } else {
+                    showToast(t('saveError'), true);
+                }
+            } catch (err) {
+                showToast(t('networkError'), true);
+            }
+        }
+
+        // ——— Toast ———
+        function showToast(msg, error = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (error ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        // ——— Init ———
+        document.getElementById('langSelect').value = currentLang;
+        applyI18n();
+        loadData();
+    </script>
+</body>
+
+</html>
