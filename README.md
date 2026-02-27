@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://lh3.googleusercontent.com/gg/AIJ2gl_YZj80zjywt7DLXEzZPXrKNpXrMfRDIPRRmZlcPaCJcnGcm4GiOMWLGryALPkah_Mx4usAO96DnZ4rT-3EIxviuXbmLv3vHwLgcy3H9GfUjFDIpWtxr5dMiZVbZgNeND9YdhsHoHbwcfjmXccfJ6Ex9ruJPgYoPqLy3oi2DQVm_nhPc_XF=s1024-rj-mp2" width="200" />
+  <img src="prerollarr_logo.jpg" width="200" />
 </p>
 
 <h1 align="center">PreRollarr</h1>
