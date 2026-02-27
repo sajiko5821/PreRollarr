@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="prerollarr_logo.jpg" width="200" />
+  <img src="prerollarr_logo.png" width="200" />
 </p>
 
 <h1 align="center">PreRollarr</h1>
