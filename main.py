@@ -191,6 +191,7 @@ def api_add_event():
         'patterns': data['patterns'],
     })
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True}), 201
 
 
@@ -210,6 +211,7 @@ def api_update_event(index):
         'patterns': data.get('patterns', events[index]['patterns']),
     }
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True})
 
 
@@ -222,6 +224,7 @@ def api_delete_event(index):
         return jsonify({'error': 'Event nicht gefunden.'}), 404
     events.pop(index)
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True})
 
 
@@ -237,6 +240,7 @@ def api_move_event(index):
         return jsonify({'error': 'Verschieben nicht möglich.'}), 400
     events[index], events[new_index] = events[new_index], events[index]
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True})
 
 
@@ -255,6 +259,7 @@ def api_reorder_event():
     event = events.pop(from_idx)
     events.insert(to_idx, event)
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True})
 
 
@@ -267,6 +272,7 @@ def api_update_always():
     config.setdefault('always', [{'name': 'Default', 'patterns': ['/']}])
     config['always'][0]['patterns'] = patterns
     save_config(config)
+    update_prerolls()
     return jsonify({'ok': True})
 
 
