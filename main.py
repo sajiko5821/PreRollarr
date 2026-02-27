@@ -106,6 +106,13 @@ def update_prerolls():
     # 2. Path Processing
     plex_files = get_plex_mapped_files(root_path, plex_path, matched_patterns)
 
+    # If no files found for the matched event, fall back to default patterns
+    if not plex_files and matched_patterns != config['always'][0]['patterns']:
+        print(f"[{datetime.now()}] [{event_name}] No files found. Falling back to default patterns.")
+        matched_patterns = config['always'][0]['patterns']
+        event_name = "Default"
+        plex_files = get_plex_mapped_files(root_path, plex_path, matched_patterns)
+
     if not plex_files:
         print(f"[{datetime.now()}] [{event_name}] No files found. Skipping update.")
         return
