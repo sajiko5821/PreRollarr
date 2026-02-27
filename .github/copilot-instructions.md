@@ -7,7 +7,7 @@ PreRollarr is a Python service (`main.py`) that periodically updates the Plex pr
 ## Architecture & Data Flow
 
 ```
-           ┌─────────── Flask Web UI (port 8080) ───────────┐
+           ┌─────────── Flask Web UI (port 7919) ───────────┐
            │  GET/POST/PUT/DELETE /api/events                │
            │  PUT /api/always                                │
            │  reads & writes config.yaml                     │
@@ -24,11 +24,11 @@ PreRollarr is a Python service (`main.py`) that periodically updates the Plex pr
 3. **Path mapping** (`get_plex_mapped_files`): Finds files on disk under `root_path`, then rewrites that prefix to `plex_path` — these are two mount points for the same directory. Hidden files (`.DS_Store` etc.) are filtered automatically.
 4. **Plex API** (`update_plex_preroll`): `PUT /:/prefs?CinemaTrailersPrerollID=<semicolon-joined paths>` with `X-Plex-Token` header.
 5. **Polling loop** (`main`): Runs in a daemon thread. `UPDATES_PER_DAY` env var controls frequency.
-6. **Web UI** (`start_web`): Flask server runs in the main thread on `WEB_PORT` (default `8080`). Template lives in `templates/index.html`.
+6. **Web UI** (`start_web`): Flask server runs in the main thread on `WEB_PORT` (default `7919`). Template lives in `templates/index.html`.
 
 ## Web UI
 
-- **Endpoint**: `http://localhost:8080` — manages events and default pre-rolls via REST API
+- **Endpoint**: `http://localhost:7919` — manages events and default pre-rolls via REST API
 - **API routes** (all in `main.py`):
   - `GET /api/config` — full config + active event index
   - `POST /api/events` — add event
@@ -71,7 +71,7 @@ events:
 | `PLEX_TOKEN` | — | Overrides `plex.token` in config |
 | `PLEX_PATH` | `/tests/PreRoll` | Overrides `paths.plex_path` |
 | `UPDATES_PER_DAY` | `4` | Must divide 86400 evenly |
-| `WEB_PORT` | `8080` | Port for the Flask web UI |
+| `WEB_PORT` | `7919` | Port for the Flask web UI |
 | `PYTHONUNBUFFERED` | `1` | Required for live Docker logs |
 
 ## Docker Volume Mounts

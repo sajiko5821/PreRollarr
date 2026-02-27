@@ -17,7 +17,7 @@ services:
       - UPDATES_PER_DAY=24
 
     ports:
-      - "8008:8008"
+      - "7919:7919"
     volumes:
       # Configuration directory (rw so the web UI can save changes)
       - ./appdata/config.yaml:/app/config.yaml

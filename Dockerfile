@@ -19,7 +19,7 @@ RUN mkdir -p /config /preroll
 ENV PYTHONUNBUFFERED=1
 
 # Expose web UI port
-EXPOSE 8008
+EXPOSE 7919
 
 # Run the application
 CMD ["python", "-u", "main.py"]

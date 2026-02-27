@@ -272,7 +272,7 @@ def api_update_always():
 
 def start_web():
     """Start the Flask web server."""
-    port = int(os.getenv('WEB_PORT', '8008'))
+    port = int(os.getenv('WEB_PORT', '7919'))
     print(f"PreRollarr Web UI available at http://0.0.0.0:{port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
