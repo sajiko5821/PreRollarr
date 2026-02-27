@@ -56,7 +56,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             # Tag with the git SHA (e.g., ghcr.io/user/repo:a1b2c3d)
-            type=sha,prefix=,format=short,priority=10
+            type=sha,prefix=,format=short,priority=1
             # Tag as 'latest' only on the main branch
             type=raw,value=latest,priority=1000,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
             # Tag as 'dev' only on dev branch
