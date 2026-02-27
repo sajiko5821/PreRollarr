@@ -1,76 +1,71 @@
 plex:
   url: http://localhost:32400
   token: X-PLEX_TOKEN
-
 paths:
-  # Docker path for actual pre-roll files
   root_path: /local-preroll
-  # Plex path - can be overridden by PLEX_PATH environment variable
   plex_path: /tests/PreRoll
-
 always:
-  - name: "Default"
-    patterns:
-      - "/" # This looks directly inside the root_path folder
-
+- name: Default
+  patterns:
+  - /
 events:
-  - name: "NewYear"
-    start_date: YYYY-01-01
-    end_date: YYYY-01-02
-    patterns:
-      - "/silvester" # Looks inside /local-preroll/silvester
-  - name: "EarlyWinter"
-    start_date: YYYY-01-03
-    end_date: YYYY-01-31
-    patterns:
-      - "/winter"
-  - name: "Valentines"
-    start_date: YYYY-02-14
-    end_date: YYYY-02-15
-    patterns:
-      - "/valentine"
-  - name: "Easter"
-    start_date: YYYY-03-28
-    end_date: YYYY-04-20
-    patterns:
-      - "/easter"
-  - name: "April Fools"
-    start_date: YYYY-04-01
-    end_date: YYYY-04-01
-    patterns:
-      - "/april_fools"
-  - name: "Fathers Day"
-    start_date: YYYY-05-29
-    end_date: YYYY-05-29
-    patterns:
-      - "/fathers_day"
-  - name: "Beer Day"
-    start_date: YYYY-08-01
-    end_date: YYYY-08-01
-    patterns:
-      - "/beer_day"
-  - name: "Autumn"
-    start_date: YYYY-10-01
-    end_date: YYYY-10-31
-    patterns:
-      - "/autumn"
-  - name: "Halloween"
-    start_date: YYYY-10-12
-    end_date: YYYY-10-31
-    patterns:
-      - "/halloween"
-  - name: "LateWinter"
-    start_date: YYYY-11-25
-    end_date: YYYY-11-30
-    patterns:
-      - "/winter"
-  - name: "Christmas"
-    start_date: YYYY-12-01
-    end_date: YYYY-12-30
-    patterns:
-      - "/xmas"
-  - name: "Silvester"
-    start_date: YYYY-12-31
-    end_date: YYYY-12-31
-    patterns:
-      - "/silvester"
+- name: NewYear
+  start_date: YYYY-01-01
+  end_date: YYYY-01-02
+  patterns:
+  - /silvester
+- name: EarlyWinter
+  start_date: YYYY-01-03
+  end_date: YYYY-01-31
+  patterns:
+  - /winter
+- name: Valentines
+  start_date: YYYY-02-14
+  end_date: YYYY-02-15
+  patterns:
+  - /valentine
+- name: Easter
+  start_date: YYYY-03-28
+  end_date: YYYY-04-20
+  patterns:
+  - /easter
+- name: April Fools
+  start_date: YYYY-04-01
+  end_date: YYYY-04-01
+  patterns:
+  - /april_fools
+- name: Fathers Day
+  start_date: YYYY-05-29
+  end_date: YYYY-05-29
+  patterns:
+  - /fathers_day
+- name: Beer Day
+  start_date: YYYY-08-01
+  end_date: YYYY-08-01
+  patterns:
+  - /beer_day
+- name: Autumn
+  start_date: YYYY-10-01
+  end_date: YYYY-10-31
+  patterns:
+  - /autumn
+- name: Halloween
+  start_date: YYYY-10-12
+  end_date: YYYY-10-31
+  patterns:
+  - /halloween
+- name: LateWinter
+  start_date: YYYY-11-25
+  end_date: YYYY-11-30
+  patterns:
+  - /winter
+- name: Christmas
+  start_date: YYYY-12-01
+  end_date: YYYY-12-30
+  patterns:
+  - /xmas
+- name: Silvester
+  start_date: YYYY-12-31
+  end_date: YYYY-12-31
+  patterns:
+  - /silvester
