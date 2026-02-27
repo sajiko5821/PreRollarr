@@ -19,7 +19,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: ["main", "master", "dev", "webapp"]
+    branches: ["main", "master", "dev"]
     tags: ["v*"]
   pull_request:
     branches: ["main"]
@@ -39,6 +39,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -55,21 +58,39 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # Tag with the git SHA (e.g., ghcr.io/user/repo:a1b2c3d)
-            type=sha,prefix=,format=short
             # Tag as 'latest' only on the main branch
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+
             # Tag as 'dev' only on dev branch
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/dev' }}
+
             # Tag with the Git tag (e.g., v1.0.0)
             type=ref,event=tag
 
-      - name: Build and push Docker image
+            # Tag with the git SHA (e.g., ghcr.io/user/repo:a1b2c3d)
+            # type=sha,prefix=,format=short
+
+      - name: Build and push Docker image (multi-arch)
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           # Change this to 'webapp/' if your Dockerfile is in a subfolder
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Docker image (PR build check only)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          # Change this to 'webapp/' if your Dockerfile is in a subfolder
+          context: .
+          push: false
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
