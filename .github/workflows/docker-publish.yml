@@ -56,13 +56,13 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             # Tag with the git SHA (e.g., ghcr.io/user/repo:a1b2c3d)
-            type=sha,prefix=,format=short
+            type=sha,prefix=,format=short,priority=10
             # Tag as 'latest' only on the main branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=raw,value=latest,priority=1000,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
             # Tag as 'dev' only on dev branch
-            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/dev' }}
+            type=raw,value=dev,priority=500,enable=${{ github.ref == 'refs/heads/dev' }}
             # Tag with the Git tag (e.g., v1.0.0)
-            type=ref,event=tag
+            type=ref,event=tag,priority=100
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
